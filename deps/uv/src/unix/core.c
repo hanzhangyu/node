@@ -310,22 +310,22 @@ int uv_backend_fd(const uv_loop_t* loop) {
 
 
 int uv_backend_timeout(const uv_loop_t* loop) {
-  if (loop->stop_flag != 0)
+  if (loop->stop_flag != 0) // uv_stop 被调用
     return 0;
 
-  if (!uv__has_active_handles(loop) && !uv__has_active_reqs(loop))
+  if (!uv__has_active_handles(loop) && !uv__has_active_reqs(loop)) // 没有活跃的 handle 或者 request
     return 0;
 
-  if (!QUEUE_EMPTY(&loop->idle_handles))
+  if (!QUEUE_EMPTY(&loop->idle_handles)) // 存在idle
     return 0;
 
-  if (!QUEUE_EMPTY(&loop->pending_queue))
+  if (!QUEUE_EMPTY(&loop->pending_queue)) // 存在pending
     return 0;
 
-  if (loop->closing_handles)
+  if (loop->closing_handles) // 存在close callbacks
     return 0;
 
-  return uv__next_timeout(loop);
+  return uv__next_timeout(loop); // 都没有则，超时时间为距离现在最近的timer
 }
 
 
@@ -340,7 +340,7 @@ int uv_loop_alive(const uv_loop_t* loop) {
     return uv__loop_alive(loop);
 }
 
-
+// 事件循环核心
 int uv_run(uv_loop_t* loop, uv_run_mode mode) {
   int timeout;
   int r;
@@ -351,20 +351,25 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
     uv__update_time(loop);
 
   while (r != 0 && loop->stop_flag == 0) {
-    uv__update_time(loop);
-    uv__run_timers(loop);
-    ran_pending = uv__run_pending(loop);
+    uv__update_time(loop); // 更新时间，使用基于不同平台实现的 uv__hrtime
+    uv__run_timers(loop); // timer
+    ran_pending = uv__run_pending(loop); // pending io阶段，运行上一个tick 遗留的 i/o 事件，存储于 pending_queue
+    // region 内部的idle，prepare阶段
     uv__run_idle(loop);
     uv__run_prepare(loop);
+    // endregion
 
     timeout = 0;
     if ((mode == UV_RUN_ONCE && !ran_pending) || mode == UV_RUN_DEFAULT)
-      timeout = uv_backend_timeout(loop);
+      timeout = uv_backend_timeout(loop); // 返回poll阶段的timeout
 
+    // 核心poll，注意：与while(true) 不同的是调用了系统级的事件 epoll，所以 CPU 不会占用过高。 @link http://blog.lucode.net/linux/epoll-tutorial.html
+    // 该函数不同平台的也是不一样的，这里以linux_core为准
     uv__io_poll(loop, timeout);
-    uv__run_check(loop);
-    uv__run_closing_handles(loop);
+    uv__run_check(loop); // 检查setImmediate
+    uv__run_closing_handles(loop); // 循环关闭所有的closing handles
 
+    // fixme 只运行一次，所以只把timer执行完，i/o的回调全部忽略?
     if (mode == UV_RUN_ONCE) {
       /* UV_RUN_ONCE implies forward progress: at least one callback must have
        * been invoked when it returns. uv__io_poll() can return without doing
@@ -379,7 +384,7 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
     }
 
     r = uv__loop_alive(loop);
-    if (mode == UV_RUN_ONCE || mode == UV_RUN_NOWAIT)
+    if (mode == UV_RUN_ONCE || mode == UV_RUN_NOWAIT) // fixme 直接返回退出循环？还有这种模式？
       break;
   }
 

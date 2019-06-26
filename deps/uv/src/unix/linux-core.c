@@ -222,7 +222,7 @@ void uv__io_poll(uv_loop_t* loop, int timeout) {
 
   memset(&e, 0, sizeof(e));
 
-  while (!QUEUE_EMPTY(&loop->watcher_queue)) {
+  while (!QUEUE_EMPTY(&loop->watcher_queue)) { // 存在监听的事件
     q = QUEUE_HEAD(&loop->watcher_queue);
     QUEUE_REMOVE(q);
     QUEUE_INIT(q);
@@ -235,6 +235,7 @@ void uv__io_poll(uv_loop_t* loop, int timeout) {
     e.events = w->pevents;
     e.data.fd = w->fd;
 
+    // 根据事件类型选择增加或者修改监听的事件
     if (w->events == 0)
       op = EPOLL_CTL_ADD;
     else
@@ -242,7 +243,7 @@ void uv__io_poll(uv_loop_t* loop, int timeout) {
 
     /* XXX Future optimization: do EPOLL_CTL_MOD lazily if we stop watching
      * events, skip the syscall and squelch the events after epoll_wait().
-     */
+     */ // 对监听的事件执行对应的操作
     if (epoll_ctl(loop->backend_fd, op, w->fd, &e)) {
       if (errno != EEXIST)
         abort();
@@ -276,6 +277,7 @@ void uv__io_poll(uv_loop_t* loop, int timeout) {
     if (sizeof(int32_t) == sizeof(long) && timeout >= max_safe_timeout)
       timeout = max_safe_timeout;
 
+    // 阻塞并返回就绪事件的数量
     nfds = epoll_pwait(loop->backend_fd,
                        events,
                        ARRAY_SIZE(events),
@@ -300,6 +302,7 @@ void uv__io_poll(uv_loop_t* loop, int timeout) {
       goto update_timeout;
     }
 
+    // 如果返回-1，则标志出现了问题，我们可以读取errno来定位错误
     if (nfds == -1) {
       if (errno != EINTR)
         abort();

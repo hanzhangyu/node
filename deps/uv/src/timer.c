@@ -141,7 +141,7 @@ int uv__next_timeout(const uv_loop_t* loop) {
   uint64_t diff;
 
   heap_node = heap_min(timer_heap(loop));
-  if (heap_node == NULL)
+  if (heap_node == NULL) // timer 最小堆里面不存在timer，则设置为无穷大
     return -1; /* block indefinitely */
 
   handle = container_of(heap_node, uv_timer_t, heap_node);
