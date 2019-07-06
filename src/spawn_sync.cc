@@ -375,7 +375,7 @@ void SyncProcessRunner::Initialize(Local<Object> target,
 void SyncProcessRunner::Spawn(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
   env->PrintSyncTrace();
-  SyncProcessRunner p(env);
+  SyncProcessRunner p(env); // 同步的调用
   Local<Value> result;
   if (!p.Run(args[0]).ToLocal(&result)) return;
   args.GetReturnValue().Set(result);
@@ -456,7 +456,7 @@ Maybe<bool> SyncProcessRunner::TryInitializeAndRunLoop(Local<Value> options) {
   CHECK_EQ(lifecycle_, kUninitialized);
   lifecycle_ = kInitialized;
 
-  uv_loop_ = new uv_loop_t;
+  uv_loop_ = new uv_loop_t; // TODO 启用一个loop，那么多个loop存在的时候怎么调度？
   if (uv_loop_ == nullptr) {
     SetError(UV_ENOMEM);
     return Just(false);

@@ -254,6 +254,7 @@ class ProcessWrap : public HandleWrap {
       options.flags |= UV_PROCESS_DETACHED;
     }
 
+    // 使用libuv的唯一创建子进程方式
     int err = uv_spawn(env->event_loop(), &wrap->process_, &options);
     wrap->MarkAsInitialized();
 

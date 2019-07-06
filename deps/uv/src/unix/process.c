@@ -487,7 +487,7 @@ int uv_spawn(uv_loop_t* loop,
 
   /* Acquire write lock to prevent opening new fds in worker threads */
   uv_rwlock_wrlock(&loop->cloexec_lock);
-  pid = fork();
+  pid = fork(); // 最终spawn有POSIX的fork实现多进程
 
   if (pid == -1) {
     err = UV__ERR(errno);
