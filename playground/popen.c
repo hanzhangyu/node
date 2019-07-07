@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <sys/wait.h> // http://pubs.opengroup.org/onlinepubs/9699919799/functions/wait.html
-#include <unistd.h>
 
 //  以下均为子进程
 //  ├─ /mnt/f/code/js/node/cmake-build-debug-wsl/popen
