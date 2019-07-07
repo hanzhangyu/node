@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include <sys/wait.h>
 #include <unistd.h>
+#include "./helper.c"
 
 int main() {
     pid_t fpid; //fpid表示fork函数返回的值
@@ -16,13 +18,19 @@ int main() {
     if (fpid == 0) {
         printf("child pid: %d\n", getpid());
         result = "changed";
-        sleep(10);
+        sleep(13);
         printf("result: %s\n", result);
         return 0;
     }
 
     printf("parent pid: %d\n", getpid());
     printf("result: %s\n", result);
-    sleep(11); // wait for child
+    int status;
+    if ((fpid = wait(&status)) == -1)
+        perror("wait() error");
+    else {
+        printf("ended child process pid: %d\n", (int) fpid);
+        printChildStatus(status);
+    }
     return 0;
 }
