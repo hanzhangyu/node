@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "./helper.c"
+#include "../helper.c"
 
 // system 不支持process I/0
 // ├─ /mnt/f/code/js/node/cmake-build-debug-wsl/system

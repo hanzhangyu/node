@@ -284,7 +284,7 @@ static void uv__process_child_init(const uv_process_options_t* options,
   int n;
 
   if (options->flags & UV_PROCESS_DETACHED)
-    setsid();
+    setsid(); // ?
 
   /* First duplicate low numbered fds, since it's not safe to duplicate them,
    * they could get replaced. Example: swapping stdout and stderr; without
@@ -401,7 +401,7 @@ static void uv__process_child_init(const uv_process_options_t* options,
     _exit(127);
   }
 
-  execvp(options->file, options->args);
+  execvp(options->file, options->args); // 替换子进程
   uv__write_int(error_fd, UV__ERR(errno));
   _exit(127);
 }
@@ -499,7 +499,7 @@ int uv_spawn(uv_loop_t* loop,
 
   if (pid == 0) {
     uv__process_child_init(options, stdio_count, pipes, signal_pipe[1]);
-    abort();
+    abort(); // 自动退出子进程
   }
 
   /* Release lock in parent process */

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include "./helper.c"
+#include "../helper.c"
 
 int main() {
     pid_t fpid; //fpid表示fork函数返回的值

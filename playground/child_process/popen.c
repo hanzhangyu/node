@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <sys/wait.h>
-#include "./helper.c"
+#include "../helper.c"
 
 //  以下均为子进程
 //  ├─ /mnt/f/code/js/node/cmake-build-debug-wsl/popen
