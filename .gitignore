@@ -127,3 +127,5 @@ deps/v8/third_party/eu-strip/
 .DS_Store
 cmake-build-debug/
 cmake-build-debug-wsl/
+
+.temp
