@@ -284,7 +284,7 @@ static void uv__process_child_init(const uv_process_options_t* options,
   int n;
 
   if (options->flags & UV_PROCESS_DETACHED)
-    setsid(); // ?
+    setsid(); // 如果设置了 detached，创建一个新的会话
 
   /* First duplicate low numbered fds, since it's not safe to duplicate them,
    * they could get replaced. Example: swapping stdout and stderr; without
