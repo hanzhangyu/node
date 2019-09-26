@@ -202,7 +202,7 @@ typedef intptr_t ssize_t;
 namespace node {
 
 class IsolateData;
-class Environment;
+class Environment; // TODO
 
 // TODO(addaleax): Officially deprecate this and replace it with something
 // better suited for a public embedder API.
